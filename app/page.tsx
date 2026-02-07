@@ -172,7 +172,7 @@ export default function HomePage() {
             Buy Fuel Token Online
           </h2>
           <p className="text-gray-600">
-            Pay digitally, get QR code, no waiting at counter
+            Pay digitally, get QR code, no waiting at the Payment Counter
           </p>
         </div>
 
