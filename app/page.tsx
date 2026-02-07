@@ -1,21 +1,34 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { createClient, FuelType } from '@/lib/supabase'
 import { generateOrderNumber, generateTokenCode, formatCurrency, calculateQuantity, getExpiryTime } from '@/lib/utils'
-import { Fuel, CreditCard, QrCode, ArrowRight, Loader2, Zap } from 'lucide-react'
+import { Fuel, CreditCard, QrCode, ArrowRight, Loader2, Zap, MapPin } from 'lucide-react'
 import Link from 'next/link'
+
+const PETROL_STATIONS = ['Station 1', 'Station 2', 'Station 3&4']
+const DIESEL_STATION = 'Station 3&4'
+
+// Simple rotating counter for petrol station allotment
+let petrolCounter = Math.floor(Math.random() * 3) // start random on page load
+
+function getAllottedStation(fuelCode: string): string {
+  if (fuelCode === 'DSL') return DIESEL_STATION
+  const station = PETROL_STATIONS[petrolCounter % PETROL_STATIONS.length]
+  petrolCounter++
+  return station
+}
 
 export default function HomePage() {
   const [fuelTypes, setFuelTypes] = useState<FuelType[]>([])
   const [selectedFuel, setSelectedFuel] = useState<FuelType | null>(null)
   const [amount, setAmount] = useState<string>('500')
   const [customerName, setCustomerName] = useState('')
-  const [phone, setPhone] = useState('')
   const [vehicleNumber, setVehicleNumber] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [tokenCode, setTokenCode] = useState<string | null>(null)
+  const [allottedStation, setAllottedStation] = useState<string | null>(null)
 
   const supabase = createClient()
 
@@ -36,13 +49,8 @@ export default function HomePage() {
   }
 
   async function handlePayment() {
-    if (!selectedFuel || !customerName || !phone) {
+    if (!selectedFuel || !customerName) {
       setError('Please fill all required fields')
-      return
-    }
-
-    if (phone.length !== 10) {
-      setError('Please enter valid 10-digit phone number')
       return
     }
 
@@ -61,12 +69,11 @@ export default function HomePage() {
         .insert({
           order_number: orderNumber,
           customer_name: customerName,
-          customer_phone: phone,
           vehicle_number: vehicleNumber || null,
           fuel_type_id: selectedFuel.id,
           quantity_liters: quantity,
           amount: amountNum,
-          payment_status: 'success', // Mock payment for demo
+          payment_status: 'success',
         })
         .select()
         .single()
@@ -90,7 +97,16 @@ export default function HomePage() {
 
       if (tokenError) throw tokenError
 
+      // Allot station client-side
+      const station = getAllottedStation(selectedFuel.code)
+
+      // Save to localStorage so QR page can read it
+      try {
+        localStorage.setItem(`station-${token.token_code}`, station)
+      } catch {}
+
       setTokenCode(token.token_code)
+      setAllottedStation(station)
     } catch (err: any) {
       setError(err.message || 'Something went wrong')
     } finally {
@@ -98,7 +114,7 @@ export default function HomePage() {
     }
   }
 
-  // Success page with QR link
+  // Success page with QR link and station info
   if (tokenCode) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-green-50 to-white flex items-center justify-center p-4">
@@ -110,7 +126,18 @@ export default function HomePage() {
           </div>
           
           <h1 className="text-2xl font-bold text-gray-800 mb-2">Payment Successful!</h1>
-          <p className="text-gray-600 mb-6">Your fuel token is ready</p>
+          <p className="text-gray-600 mb-4">Your fuel token is ready</p>
+
+          {/* Station Allotment Banner */}
+          {allottedStation && (
+            <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-4 mb-4">
+              <div className="flex items-center justify-center gap-2 mb-1">
+                <MapPin className="w-5 h-5 text-blue-600" />
+                <p className="text-sm font-medium text-blue-600">Go to Fueling Station</p>
+              </div>
+              <p className="text-2xl font-bold text-blue-800">{allottedStation}</p>
+            </div>
+          )}
           
           <div className="bg-gray-50 rounded-xl p-4 mb-6">
             <p className="text-sm text-gray-500">Token Code</p>
@@ -129,8 +156,8 @@ export default function HomePage() {
           <button
             onClick={() => {
               setTokenCode(null)
+              setAllottedStation(null)
               setCustomerName('')
-              setPhone('')
               setVehicleNumber('')
               setAmount('500')
             }}
@@ -162,6 +189,7 @@ export default function HomePage() {
   </div>
 </header>
 
+
       <main className="container mx-auto px-4 py-6 max-w-md">
         {/* Hero */}
         <div className="text-center mb-8">
@@ -173,7 +201,7 @@ export default function HomePage() {
             Buy Fuel Token Online
           </h2>
           <p className="text-gray-600">
-            Pay digitally, get QR code, no waiting at the Payment Counter
+            Pay digitally, get QR code, no waiting at counter
           </p>
         </div>
 
@@ -249,12 +277,12 @@ export default function HomePage() {
 
         {/* Customer Details */}
         <div className="bg-white rounded-2xl shadow-lg p-6 mb-4">
-          <h3 className="font-semibold text-gray-800 mb-4">Your Details</h3>
+          <h3 className="font-semibold text-gray-800 mb-4">Fill Details</h3>
           
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-600 mb-1">
-                Full Name <span className="text-red-500">*</span>
+                Your Name <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -262,32 +290,6 @@ export default function HomePage() {
                 onChange={(e) => setCustomerName(e.target.value)}
                 className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-primary-500 focus:outline-none"
                 placeholder="Enter your name"
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">
-                Mobile Number <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="tel"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-primary-500 focus:outline-none"
-                placeholder="10-digit mobile number"
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">
-                Vehicle Number <span className="text-gray-400">(Optional)</span>
-              </label>
-              <input
-                type="text"
-                value={vehicleNumber}
-                onChange={(e) => setVehicleNumber(e.target.value.toUpperCase())}
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-primary-500 focus:outline-none"
-                placeholder="UP81AB1234"
               />
             </div>
           </div>
@@ -303,7 +305,7 @@ export default function HomePage() {
         {/* Pay Button */}
         <button
           onClick={handlePayment}
-          disabled={loading || !selectedFuel || !amount || !customerName || !phone}
+          disabled={loading || !selectedFuel || !amount || !customerName}
           className="w-full bg-primary-500 hover:bg-primary-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold py-4 rounded-xl shadow-lg transition-colors flex items-center justify-center gap-2 text-lg"
         >
           {loading ? (

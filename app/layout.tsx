@@ -5,7 +5,7 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'FuelFlow - Buy Fuel Token Online',
+  title: 'AMU Smart Petrol Pump - Buy Fuel Token Online',
   description: 'Skip the queue! Buy fuel tokens online and pay digitally.',
 }
 
