@@ -147,19 +147,20 @@ export default function HomePage() {
     <div className="min-h-screen bg-gradient-to-b from-orange-50 to-white">
       {/* Header */}
       <header className="bg-white shadow-sm sticky top-0 z-10">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-primary-500 rounded-xl flex items-center justify-center">
-              <Fuel className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <h1 className="font-bold text-gray-800">AMU CAW Petrol Pump</h1>
-              <p className="text-xs text-black-600"> Smart Petrol Pump for Smart Aligs</p>
-               <p className="text-xs text-black-500 ">  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Customer's Portel</p>
-            </div>
-          </div>
-        </div>
-      </header>
+  <div className="container mx-auto px-4 py-4 flex flex-col items-center justify-center">
+    
+    <div className="w-10 h-10 bg-primary-500 rounded-xl flex items-center justify-center mb-2">
+      <Fuel className="w-6 h-6 text-white" />
+    </div>
+
+    <div className="text-center">
+      <h1 className="font-bold text-gray-800">AMU CAW Petrol Pump</h1>
+      <p className="text-xs text-black-600">Smart Petrol Pump for Smart Aligs</p>
+      <p className="text-xs text-black-500">Customer's Portal</p>
+    </div>
+
+  </div>
+</header>
 
       <main className="container mx-auto px-4 py-6 max-w-md">
         {/* Hero */}
