@@ -153,8 +153,9 @@ export default function HomePage() {
               <Fuel className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="font-bold text-gray-800">FuelFlow</h1>
-              <p className="text-xs text-gray-500">AMU Petrol Pump</p>
+              <h1 className="font-bold text-gray-800">AMU CAW Petrol Pump</h1>
+              <p className="text-xs text-black-600"> Smart Petrol Pump for Smart Aligs</p>
+               <p className="text-xs text-black-500 ">  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Customer's Portel</p>
             </div>
           </div>
         </div>
