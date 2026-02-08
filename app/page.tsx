@@ -184,6 +184,15 @@ export default function HomePage() {
       <h1 className="font-bold text-gray-800">AMU CAW Petrol Pump</h1>
       <p className="text-xs text-black-600">Smart Petrol Pump for Smart Aligs</p>
       <p className="text-xs text-black-500">Customer's Portal</p>
+      <p className="text-xs text-gray-600 flex items-center justify-center gap-2 mt-1">
+  <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+  <span className="font-semibold text-red-600">LIVE</span>
+  <span className="text-gray-500">•</span>
+  <span className="font-medium text-gray-700">
+    Queue: <span className="font-bold text-gray-900">11</span> Vehicles
+  </span>
+</p>
+
     </div>
 
   </div>
